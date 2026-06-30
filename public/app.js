@@ -13,6 +13,7 @@ const state = {
 
 const metricsEl = document.querySelector("#metrics");
 const leadsBody = document.querySelector("#leadsBody");
+const leadsCards = document.querySelector("#leadsCards");
 const leadCount = document.querySelector("#leadCount");
 const statusText = document.querySelector("#statusText");
 const cityFilter = document.querySelector("#cityFilter");
@@ -100,13 +101,78 @@ function priorityClass(prioridade) {
   return `priority priority-${String(prioridade || "").toLocaleLowerCase("pt-BR")}`;
 }
 
+function textValue(value, fallback = "-") {
+  return value ? String(value) : fallback;
+}
+
+function createLeadCard(lead) {
+  const card = document.createElement("article");
+  card.className = "lead-card";
+
+  const header = document.createElement("div");
+  header.className = "lead-card-header";
+
+  const companyBlock = document.createElement("div");
+
+  const company = document.createElement("strong");
+  company.className = "lead-card-company";
+  company.textContent = textValue(lead.empresa);
+
+  const city = document.createElement("span");
+  city.className = "lead-card-city";
+  city.textContent = textValue(lead.cidade);
+
+  companyBlock.append(company, city);
+
+  const priority = document.createElement("span");
+  priority.className = priorityClass(lead.prioridade);
+  priority.textContent = textValue(lead.prioridade);
+
+  header.append(companyBlock, priority);
+
+  const meta = document.createElement("dl");
+  meta.className = "lead-card-meta";
+
+  const fields = [
+    ["Contato", textValue(lead.contato)],
+    ["Status", textValue(lead.status, "Sem status")],
+    ["Observações", textValue(lead.observacoes)],
+  ];
+
+  fields.forEach(([label, value]) => {
+    const row = document.createElement("div");
+    const term = document.createElement("dt");
+    const description = document.createElement("dd");
+
+    term.textContent = label;
+
+    if (label === "Status") {
+      const status = document.createElement("span");
+      status.className = "status-pill";
+      status.textContent = value;
+      description.append(status);
+    } else {
+      description.textContent = value;
+    }
+
+    row.append(term, description);
+    meta.append(row);
+  });
+
+  card.append(header, meta);
+  return card;
+}
+
 function renderLeads(leads) {
   leadCount.textContent = `${leads.length} lead${leads.length === 1 ? "" : "s"} encontrado${leads.length === 1 ? "" : "s"}`;
 
   if (!leads.length) {
     leadsBody.innerHTML = `<tr><td class="empty-state" colspan="6">Nenhum lead encontrado</td></tr>`;
+    leadsCards.innerHTML = `<p class="empty-state">Nenhum lead encontrado</p>`;
     return;
   }
+
+  leadsCards.replaceChildren(...leads.map((lead) => createLeadCard(lead)));
 
   leadsBody.replaceChildren(
     ...leads.map((lead) => {
@@ -118,22 +184,22 @@ function renderLeads(leads) {
       priorityCell.append(priority);
 
       const empresaCell = document.createElement("td");
-      empresaCell.textContent = lead.empresa || "-";
+      empresaCell.textContent = textValue(lead.empresa);
 
       const cidadeCell = document.createElement("td");
-      cidadeCell.textContent = lead.cidade;
+      cidadeCell.textContent = textValue(lead.cidade);
 
       const contatoCell = document.createElement("td");
-      contatoCell.textContent = lead.contato || "-";
+      contatoCell.textContent = textValue(lead.contato);
 
       const statusCell = document.createElement("td");
       const status = document.createElement("span");
       status.className = "status-pill";
-      status.textContent = lead.status || "Sem status";
+      status.textContent = textValue(lead.status, "Sem status");
       statusCell.append(status);
 
       const observacoesCell = document.createElement("td");
-      observacoesCell.textContent = lead.observacoes || "";
+      observacoesCell.textContent = lead.observacoes || "-";
 
       row.append(
         priorityCell,
