@@ -1,6 +1,6 @@
 # Dashboard CRM Dismobile
 
-Aplicação Node.js para gerenciar leads comerciais da Dismobile em uma planilha local (`leads.xlsx`), visualizar indicadores em um dashboard web e sincronizar os dados com o Google Sheets.
+Aplicação Node.js/Express para gerenciar leads comerciais da Dismobile com dashboard web, PostgreSQL como banco principal e sincronização opcional com Google Sheets.
 
 ## Funcionalidades
 
@@ -9,16 +9,18 @@ Aplicação Node.js para gerenciar leads comerciais da Dismobile em uma planilha
 - Importação de contatos em lote via arquivo JSON.
 - Filtros por cidade, status e busca textual.
 - Controle de prioridade dos leads: `A`, `B` e `C`.
-- Criação automática de hyperlinks de WhatsApp nos contatos da planilha local.
-- Backup local da planilha antes de cada gravação.
-- Sincronização da planilha local com abas no Google Sheets.
-- Comandos CLI para criar planilha, consultar resultados, adicionar contatos e sincronizar.
+- Persistência em PostgreSQL, ideal para Railway.
+- Migração do arquivo local `leads.xlsx` para PostgreSQL.
+- Sincronização opcional do banco PostgreSQL para abas no Google Sheets.
 
 ## Tecnologias
 
 - Node.js
 - Express
-- ExcelJS
+- PostgreSQL
+- pg
+- dotenv
+- ExcelJS, usado somente para importar a planilha legada
 - Google Sheets API (`googleapis`)
 - HTML, CSS e JavaScript puro no front-end
 
@@ -26,13 +28,21 @@ Aplicação Node.js para gerenciar leads comerciais da Dismobile em uma planilha
 
 ```text
 .
-├── index.js              # Regras principais, CLI, Excel e Google Sheets
-├── server.js             # API Express e servidor da interface web
+├── config.js                         # Configurações e constantes
+├── db.js                             # Conexão PostgreSQL
+├── index.js                          # CLI principal
+├── leadsRepository.js                # Consultas e gravações de leads no PostgreSQL
+├── googleSheets.js                   # Sincronização PostgreSQL -> Google Sheets
+├── migrate.js                        # Executor de migrations SQL
+├── migrations/
+│   └── 001_create_leads.sql          # Schema inicial do banco
+├── scripts/
+│   └── import-xlsx-to-postgres.js    # Migração do leads.xlsx para PostgreSQL
+├── server.js                         # API Express e servidor da interface web
 ├── public/
-│   ├── index.html        # Tela do dashboard
-│   ├── app.js            # Lógica do front-end
-│   └── styles.css        # Estilos da interface
-├── arquivos_json/        # Exemplos/arquivos de importação JSON
+│   ├── index.html
+│   ├── app.js
+│   └── styles.css
 ├── package.json
 └── .gitignore
 ```
@@ -40,12 +50,11 @@ Aplicação Node.js para gerenciar leads comerciais da Dismobile em uma planilha
 ## Pré-requisitos
 
 - Node.js instalado.
-- Uma credencial de Service Account do Google com acesso à planilha desejada.
-- A planilha do Google Sheets precisa ter abas com os mesmos nomes configurados em `CIDADES`.
+- PostgreSQL disponível localmente ou em produção, como Railway PostgreSQL.
+- Variável `DATABASE_URL` configurada.
+- Opcional: Service Account do Google para sincronizar com Google Sheets.
 
 ## Instalação
-
-Clone o projeto e instale as dependências:
 
 ```bash
 git clone https://github.com/GustavoCBRL/dashboard-crm-dismobile.git
@@ -55,36 +64,105 @@ npm install
 
 ## Configuração
 
-A aplicação pode ser configurada por variáveis de ambiente:
+Crie um arquivo `.env` local, ou configure as variáveis diretamente no ambiente/Railway.
+
+Exemplo:
 
 ```bash
-export SPREADSHEET_ID="id-da-sua-planilha-google"
-export GOOGLE_CREDENTIALS="/caminho/para/credencial-google.json"
-export LEADS_FILE="./leads.xlsx"
-export CIDADES="Aracaju,Salvador,Brasília"
+DATABASE_URL="postgresql://usuario:senha@host:5432/banco"
+PGSSLMODE="disable"
+CIDADES="Aracaju,Salvador,Brasília"
+PORT="3000"
+
+# Opcional para sincronização com Google Sheets
+SPREADSHEET_ID="id-da-sua-planilha-google"
+GOOGLE_CREDENTIALS="./credencial-google.json"
+# ou, em produção:
+# GOOGLE_CREDENTIALS_JSON='{"type":"service_account",...}'
 ```
 
 Variáveis disponíveis:
 
-| Variável | Descrição | Padrão |
+| Variável | Descrição | Obrigatória |
 | --- | --- | --- |
-| `SPREADSHEET_ID` | ID da planilha do Google Sheets | ID definido no código |
-| `GOOGLE_CREDENTIALS` | Caminho do JSON da Service Account | `./contatos-dismobile-498515-5250939c30a8.json` |
-| `LEADS_FILE` | Caminho da planilha Excel local | `./leads.xlsx` |
-| `CIDADES` | Lista de cidades/abas separadas por vírgula | `Aracaju,Salvador,Brasília` |
-| `PORT` | Porta do servidor web | `3000` |
+| `DATABASE_URL` | URL de conexão PostgreSQL | Sim |
+| `PGSSLMODE` | Use `disable` para PostgreSQL local sem SSL | Não |
+| `CIDADES` | Lista de cidades/abas separadas por vírgula | Não |
+| `PORT` | Porta do servidor web | Não |
+| `SPREADSHEET_ID` | ID da planilha do Google Sheets | Só para sincronização |
+| `GOOGLE_CREDENTIALS` | Caminho do JSON da Service Account | Só para sincronização local |
+| `GOOGLE_CREDENTIALS_JSON` | Conteúdo JSON da Service Account em variável de ambiente | Só para sincronização em produção |
 
-Importante: arquivos de credenciais, `.env`, `leads.xlsx`, backups e `node_modules` são ignorados pelo Git.
+## Banco de dados
+
+A tabela principal é `leads`:
+
+```sql
+CREATE TABLE leads (
+  id SERIAL PRIMARY KEY,
+  cidade VARCHAR(100) NOT NULL,
+  prioridade VARCHAR(1) NOT NULL,
+  empresa VARCHAR(255) NOT NULL,
+  contato VARCHAR(30) DEFAULT '',
+  status VARCHAR(30) NOT NULL DEFAULT 'Novo',
+  observacoes TEXT DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+```
+
+Também existe um índice único por cidade + empresa para evitar duplicidade:
+
+```sql
+CREATE UNIQUE INDEX leads_cidade_empresa_unique
+ON leads (LOWER(cidade), LOWER(empresa));
+```
+
+## Criar/atualizar o schema
+
+Com `DATABASE_URL` configurada:
+
+```bash
+npm run db:migrate
+```
+
+## Migrar dados do Excel atual para PostgreSQL
+
+Antes de gravar no banco, confira quantos leads serão importados:
+
+```bash
+npm run import:xlsx:dry-run
+```
+
+Para importar de fato:
+
+```bash
+npm run import:xlsx
+```
+
+O script lê `leads.xlsx`, cria/aplica a migration se necessário e insere os leads no PostgreSQL. Duplicados por cidade + empresa são ignorados.
+
+No estado migrado deste projeto, a planilha local gerou 93 leads:
+
+- Aracaju: 14
+- Brasília: 44
+- Salvador: 35
+
+Duas empresas de Salvador estavam sem telefone na planilha e foram preservadas no PostgreSQL com o campo `contato` vazio.
 
 ## Uso pela interface web
 
-Inicie o servidor:
+```bash
+npm start
+```
+
+ou:
 
 ```bash
 npm run gui
 ```
 
-Acesse no navegador:
+Acesse:
 
 ```text
 http://localhost:3000
@@ -96,7 +174,7 @@ Na interface é possível:
 - filtrar leads;
 - cadastrar um novo lead;
 - importar contatos via JSON;
-- sincronizar a planilha local com o Google Sheets.
+- sincronizar dados do PostgreSQL com o Google Sheets.
 
 ## Uso pelo terminal
 
@@ -106,28 +184,16 @@ Na interface é possível:
 npm run ajuda
 ```
 
-### Criar a planilha local
-
-```bash
-node index.js criar-planilha
-```
-
 ### Consultar resultados
 
 ```bash
 npm run resultados
 ```
 
-### Sincronizar com Google Sheets
+### Sincronizar PostgreSQL com Google Sheets
 
 ```bash
 npm run sincronizar
-```
-
-### Rodar consulta de resultados e sincronização
-
-```bash
-npm start
 ```
 
 ### Adicionar um contato
@@ -142,7 +208,7 @@ node index.js adicionar-contato '{"cidade":"Salvador","prioridade":"A","empresa"
 node index.js adicionar-contatos-json ./arquivos_json/salvador.json
 ```
 
-O arquivo JSON pode ser uma lista direta:
+O JSON pode ser uma lista direta:
 
 ```json
 [
@@ -176,14 +242,40 @@ Ou um objeto com a chave `contatos`:
 
 ## Status dos leads
 
-A aplicação trabalha com os seguintes status:
-
 - `Novo`
 - `Contato`
 - `Catálogo`
 - `Follow Up`
 - `Fechado`
 - `Perdido`
+
+## Deploy no Railway
+
+1. Suba o projeto para o GitHub.
+2. Crie um novo projeto no Railway a partir do repositório.
+3. Adicione um serviço PostgreSQL no Railway.
+4. Confirme que o serviço da aplicação recebeu a variável `DATABASE_URL`.
+5. Configure, se necessário:
+
+```text
+CIDADES=Aracaju,Salvador,Brasília
+NODE_ENV=production
+GOOGLE_CREDENTIALS_JSON={...}
+SPREADSHEET_ID=...
+```
+
+6. Execute a migration/importação uma vez:
+
+```bash
+npm run db:migrate
+npm run import:xlsx
+```
+
+7. O comando de start do Railway pode ser:
+
+```bash
+npm start
+```
 
 ## Segurança e dados sensíveis
 

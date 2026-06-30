@@ -1,14 +1,19 @@
 {
   "scripts": {
-    "start": "node index.js",
+    "start": "node server.js",
     "gui": "node server.js",
     "resultados": "node index.js resultados",
     "sincronizar": "node index.js sincronizar",
-    "ajuda": "node index.js ajuda"
+    "ajuda": "node index.js ajuda",
+    "db:migrate": "node migrate.js",
+    "import:xlsx": "node scripts/import-xlsx-to-postgres.js",
+    "import:xlsx:dry-run": "node scripts/import-xlsx-to-postgres.js --dry-run"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
-    "googleapis": "^173.0.0"
+    "googleapis": "^173.0.0",
+    "pg": "^8.22.0"
   }
 }
