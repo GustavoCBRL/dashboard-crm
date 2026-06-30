@@ -4,6 +4,8 @@ const state = {
     prioridades: [],
     status: [],
   },
+  leads: [],
+  activeTab: "leadFormPanel",
   filters: {
     cidade: "",
     status: "",
@@ -22,11 +24,18 @@ const searchInput = document.querySelector("#searchInput");
 const refreshButton = document.querySelector("#refreshButton");
 const syncButton = document.querySelector("#syncButton");
 const leadForm = document.querySelector("#leadForm");
+const leadStatusForm = document.querySelector("#leadStatusForm");
 const jsonImportForm = document.querySelector("#jsonImportForm");
 const jsonFileInput = document.querySelector("#jsonFileInput");
 const cidadeInput = document.querySelector("#cidadeInput");
 const prioridadeInput = document.querySelector("#prioridadeInput");
 const statusInput = document.querySelector("#statusInput");
+const leadSelectInput = document.querySelector("#leadSelectInput");
+const leadStatusInput = document.querySelector("#leadStatusInput");
+const leadObservacoesInput = document.querySelector("#leadObservacoesInput");
+const leadCurrentStatus = document.querySelector("#leadCurrentStatus");
+const tabButtons = document.querySelectorAll(".tab-button");
+const tabPanels = document.querySelectorAll(".tab-panel");
 const toast = document.querySelector("#toast");
 
 function showToast(message) {
@@ -67,6 +76,58 @@ function fillSelect(select, values, { allLabel } = {}) {
     select.append(option("", allLabel));
   }
   values.forEach((value) => select.append(option(value)));
+}
+
+function fillLeadSelect(leads) {
+  const currentValue = leadSelectInput.value;
+  leadSelectInput.replaceChildren(option("", "Selecione uma lead"));
+
+  leads.forEach((lead) => {
+    const label = `${lead.empresa || "Sem empresa"} - ${lead.cidade} (${lead.status || "Sem status"})`;
+    leadSelectInput.append(option(String(lead.id), label));
+  });
+
+  if (leads.some((lead) => String(lead.id) === currentValue)) {
+    leadSelectInput.value = currentValue;
+  }
+
+  syncSelectedLeadDetails();
+}
+
+function getSelectedLead() {
+  const selectedId = Number(leadSelectInput.value);
+  return state.leads.find((lead) => lead.id === selectedId) || null;
+}
+
+function syncSelectedLeadDetails() {
+  const lead = getSelectedLead();
+
+  if (!lead) {
+    leadCurrentStatus.textContent = "Selecione uma lead para ver o status atual.";
+    leadStatusInput.value = "Novo";
+    leadObservacoesInput.value = "";
+    return;
+  }
+
+  leadCurrentStatus.textContent = `Status atual: ${lead.status || "Sem status"} · ${lead.empresa} em ${lead.cidade}`;
+  leadStatusInput.value = lead.status || "Novo";
+  leadObservacoesInput.value = lead.observacoes || "";
+}
+
+function setActiveTab(tabId) {
+  state.activeTab = tabId;
+
+  tabButtons.forEach((button) => {
+    const isActive = button.dataset.tabTarget === tabId;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  tabPanels.forEach((panel) => {
+    const isActive = panel.id === tabId;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
 }
 
 function renderMetrics(dashboard) {
@@ -164,6 +225,8 @@ function createLeadCard(lead) {
 }
 
 function renderLeads(leads) {
+  state.leads = leads;
+  fillLeadSelect(leads);
   leadCount.textContent = `${leads.length} lead${leads.length === 1 ? "" : "s"} encontrado${leads.length === 1 ? "" : "s"}`;
 
   if (!leads.length) {
@@ -255,7 +318,23 @@ async function syncSheets() {
   }
 }
 
+async function updateLeadStatus(payload) {
+  return request(`/api/leads/${payload.id}`, {
+    method: "PATCH",
+    body: JSON.stringify({
+      status: payload.status,
+      observacoes: payload.observacoes,
+    }),
+  });
+}
+
 function bindEvents() {
+  tabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setActiveTab(button.dataset.tabTarget);
+    });
+  });
+
   cityFilter.addEventListener("change", () => {
     state.filters.cidade = cityFilter.value;
     loadLeads().catch((error) => showToast(error.message));
@@ -276,6 +355,7 @@ function bindEvents() {
 
   refreshButton.addEventListener("click", refreshAll);
   syncButton.addEventListener("click", syncSheets);
+  leadSelectInput.addEventListener("change", syncSelectedLeadDetails);
 
   leadForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -295,6 +375,25 @@ function bindEvents() {
       statusInput.value = "Novo";
       await refreshAll();
       showToast("Lead salvo na planilha local");
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+
+  leadStatusForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(leadStatusForm);
+    const payload = Object.fromEntries(formData.entries());
+    const submitButton = leadStatusForm.querySelector("button[type='submit']");
+
+    submitButton.disabled = true;
+    try {
+      await updateLeadStatus(payload);
+      await refreshAll();
+      showToast("Status da lead atualizado");
     } catch (error) {
       showToast(error.message);
     } finally {
@@ -341,12 +440,15 @@ async function init() {
     fillSelect(cidadeInput, state.config.cidades);
     fillSelect(prioridadeInput, state.config.prioridades);
     fillSelect(statusInput, state.config.status);
+    fillSelect(leadStatusInput, state.config.status);
 
     cidadeInput.value = state.config.cidades[0] || "";
     prioridadeInput.value = state.config.prioridades[0] || "";
     statusInput.value = "Novo";
+    leadStatusInput.value = "Novo";
 
     bindEvents();
+    setActiveTab(state.activeTab);
     await refreshAll();
   } catch (error) {
     showToast(error.message);

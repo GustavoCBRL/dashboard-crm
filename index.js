@@ -3,6 +3,7 @@ const path = require("path");
 const { CONFIG, PRIORIDADES, STATUS } = require("./config");
 const {
   adicionarContato,
+  atualizarLead,
   listarLeads,
   obterResultados,
 } = require("./leadsRepository");
@@ -125,6 +126,7 @@ module.exports = {
   STATUS,
   PRIORIDADES,
   adicionarContato,
+  atualizarLead,
   consultarPlanilhaResultados,
   lerContatosJson,
   listarLeads,

@@ -29,6 +29,12 @@ function validarContato(contato) {
   }
 }
 
+function validarStatus(status) {
+  if (!STATUS.includes(status)) {
+    throw new Error(`status inválido: ${status}`);
+  }
+}
+
 function mapLead(row) {
   return {
     id: row.id,
@@ -197,10 +203,55 @@ async function obterResultados() {
   return resultados;
 }
 
+async function atualizarLead(id, dados) {
+  const leadId = Number(id);
+
+  if (!Number.isInteger(leadId) || leadId <= 0) {
+    throw new Error("id da lead inválido");
+  }
+
+  const updates = [];
+  const values = [];
+
+  if (dados.status !== undefined) {
+    validarStatus(dados.status);
+    values.push(dados.status);
+    updates.push(`status = $${values.length}`);
+  }
+
+  if (dados.observacoes !== undefined) {
+    values.push(String(dados.observacoes || ""));
+    updates.push(`observacoes = $${values.length}`);
+  }
+
+  if (!updates.length) {
+    throw new Error("Informe ao menos um campo para atualizar");
+  }
+
+  values.push(leadId);
+  const result = await pool.query(
+    `
+      UPDATE leads
+      SET ${updates.join(", ")}
+      WHERE id = $${values.length}
+      RETURNING id, cidade, prioridade, empresa, contato, status, observacoes, created_at, updated_at
+    `,
+    values,
+  );
+
+  if (!result.rows[0]) {
+    throw new Error("Lead não encontrada");
+  }
+
+  return mapLead(result.rows[0]);
+}
+
 module.exports = {
   adicionarContato,
+  atualizarLead,
   listarLeads,
   normalizarTelefone,
   obterResultados,
+  validarStatus,
   validarContato,
 };

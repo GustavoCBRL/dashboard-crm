@@ -63,6 +63,7 @@
                     <th>Contato</th>
                     <th>Status</th>
                     <th>Observações</th>
+                    <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody id="leadsBody"></tbody>
@@ -75,46 +76,100 @@
           <section class="panel form-panel">
             <div class="panel-header">
               <div>
-                <h2>Novo lead</h2>
-                <p>Adicionar contato na planilha local</p>
+                <h2>Operações</h2>
+                <p>Cadastre leads e atualize o andamento comercial</p>
               </div>
             </div>
 
-            <form id="leadForm">
-              <label>
-                Cidade
-                <select name="cidade" id="cidadeInput" required></select>
-              </label>
-
-              <label>
-                Prioridade
-                <select name="prioridade" id="prioridadeInput" required></select>
-              </label>
-
-              <label>
-                Empresa
-                <input name="empresa" type="text" required />
-              </label>
-
-              <label>
-                Contato
-                <input name="contato" type="tel" required />
-              </label>
-
-              <label>
-                Status
-                <select name="status" id="statusInput" required></select>
-              </label>
-
-              <label>
-                Observações
-                <textarea name="observacoes" rows="4"></textarea>
-              </label>
-
-              <button class="button primary wide" type="submit">
-                Salvar lead
+            <div class="tabs" role="tablist" aria-label="Ações de leads">
+              <button
+                id="leadFormTab"
+                class="tab-button is-active"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                aria-controls="leadFormPanel"
+                data-tab-target="leadFormPanel"
+              >
+                Adicionar lead
               </button>
-            </form>
+              <button
+                id="leadStatusTab"
+                class="tab-button"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="leadStatusPanel"
+                data-tab-target="leadStatusPanel"
+              >
+                Atualizar status
+              </button>
+            </div>
+
+            <div id="leadFormPanel" class="tab-panel is-active" role="tabpanel" aria-labelledby="leadFormTab">
+              <form id="leadForm">
+                <label>
+                  Cidade
+                  <select name="cidade" id="cidadeInput" required></select>
+                </label>
+
+                <label>
+                  Prioridade
+                  <select name="prioridade" id="prioridadeInput" required></select>
+                </label>
+
+                <label>
+                  Empresa
+                  <input name="empresa" type="text" required />
+                </label>
+
+                <label>
+                  Contato
+                  <input name="contato" type="tel" required />
+                </label>
+
+                <label>
+                  Status
+                  <select name="status" id="statusInput" required></select>
+                </label>
+
+                <label>
+                  Observações
+                  <textarea name="observacoes" rows="4"></textarea>
+                </label>
+
+                <button class="button primary wide" type="submit">
+                  Salvar lead
+                </button>
+              </form>
+            </div>
+
+            <div id="leadStatusPanel" class="tab-panel" role="tabpanel" aria-labelledby="leadStatusTab" hidden>
+              <form id="leadStatusForm">
+                <label>
+                  Lead
+                  <select id="leadSelectInput" name="id" required>
+                    <option value="">Selecione uma lead</option>
+                  </select>
+                </label>
+
+                <p id="leadCurrentStatus" class="helper-text">Selecione uma lead para ver o status atual.</p>
+
+                <label>
+                  Novo status
+                  <select id="leadStatusInput" name="status" required></select>
+                </label>
+
+                <label>
+                  Observações
+                  <textarea id="leadObservacoesInput" name="observacoes" rows="4" placeholder="Opcional: registre o próximo passo ou contexto da atualização"></textarea>
+                </label>
+
+                <button class="button primary wide" type="submit">
+                  Atualizar lead
+                </button>
+              </form>
+            </div>
           </section>
 
           <section class="panel import-panel">

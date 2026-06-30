@@ -5,6 +5,7 @@ const {
   PRIORIDADES,
   STATUS,
   adicionarContato,
+  atualizarLead,
   listarLeads,
   obterResultados,
   sincronizarPlanilha,
@@ -75,6 +76,22 @@ app.post("/api/leads", async (req, res, next) => {
       ok: true,
       resultados,
       totalLeads: leads.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.patch("/api/leads/:id", async (req, res, next) => {
+  try {
+    const lead = await atualizarLead(req.params.id, {
+      status: req.body.status,
+      observacoes: req.body.observacoes,
+    });
+
+    res.json({
+      ok: true,
+      lead,
     });
   } catch (error) {
     next(error);
