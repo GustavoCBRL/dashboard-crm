@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dismobile Contatos - Gustavo Cabral</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Gestão Comercial - Gustavo Cabral</p>
+          <h1>Dismobile Contatos</h1>
+        </div>
+        <div class="actions">
+          <button id="refreshButton" class="button ghost" type="button">
+            Atualizar
+          </button>
+          <button id="syncButton" class="button primary" type="button">
+            Sincronizar
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <section class="main-column">
+          <div class="metrics" id="metrics"></div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Leads</h2>
+                <p id="leadCount">Carregando...</p>
+              </div>
+              <div id="statusText" class="status-text"></div>
+            </div>
+
+            <div class="filters">
+              <label>
+                Cidade
+                <select id="cityFilter"></select>
+              </label>
+              <label>
+                Status
+                <select id="statusFilter"></select>
+              </label>
+              <label class="search-field">
+                Buscar
+                <input id="searchInput" type="search" placeholder="Empresa, telefone, observação" />
+              </label>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Prioridade</th>
+                    <th>Empresa</th>
+                    <th>Cidade</th>
+                    <th>Contato</th>
+                    <th>Status</th>
+                    <th>Observações</th>
+                  </tr>
+                </thead>
+                <tbody id="leadsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
+        <aside class="side-column">
+          <section class="panel form-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Novo lead</h2>
+                <p>Adicionar contato na planilha local</p>
+              </div>
+            </div>
+
+            <form id="leadForm">
+              <label>
+                Cidade
+                <select name="cidade" id="cidadeInput" required></select>
+              </label>
+
+              <label>
+                Prioridade
+                <select name="prioridade" id="prioridadeInput" required></select>
+              </label>
+
+              <label>
+                Empresa
+                <input name="empresa" type="text" required />
+              </label>
+
+              <label>
+                Contato
+                <input name="contato" type="tel" required />
+              </label>
+
+              <label>
+                Status
+                <select name="status" id="statusInput" required></select>
+              </label>
+
+              <label>
+                Observações
+                <textarea name="observacoes" rows="4"></textarea>
+              </label>
+
+              <button class="button primary wide" type="submit">
+                Salvar lead
+              </button>
+            </form>
+          </section>
+
+          <section class="panel import-panel">
+            <div class="panel-header">
+              <div>
+                <h2>Importar JSON</h2>
+                <p>Adicionar uma lista de contatos</p>
+              </div>
+            </div>
+
+            <form id="jsonImportForm">
+              <label>
+                Arquivo JSON
+                <input id="jsonFileInput" type="file" accept="application/json,.json" required />
+              </label>
+
+              <div class="json-example">
+                <code>[{ "cidade": "Salvador", "prioridade": "A", "empresa": "Empresa X", "contato": "71999999999", "status": "Novo" }]</code>
+              </div>
+
+              <button class="button ghost wide" type="submit">
+                Importar contatos
+              </button>
+            </form>
+          </section>
+        </aside>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>

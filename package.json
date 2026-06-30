@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "start": "node index.js",
+    "gui": "node server.js",
+    "resultados": "node index.js resultados",
+    "sincronizar": "node index.js sincronizar",
+    "ajuda": "node index.js ajuda"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "googleapis": "^173.0.0"
+  }
+}
