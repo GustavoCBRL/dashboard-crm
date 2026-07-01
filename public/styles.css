@@ -49,7 +49,7 @@ textarea {
 
 .eyebrow {
   color: var(--gold);
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 800;
   margin: 0 0 4px;
   text-transform: uppercase;
@@ -59,6 +59,7 @@ h1,
 h2,
 p {
   margin: 0;
+  
 }
 
 h1 {
@@ -194,7 +195,7 @@ h2 {
 .panel-header p,
 .status-text {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 18px;
   margin-top: 4px;
 }
 
@@ -239,7 +240,7 @@ h2 {
 label {
   color: var(--muted);
   display: grid;
-  font-size: 12px;
+  font-size: 20px;
   font-weight: 800;
   gap: 6px;
   text-transform: uppercase;
@@ -368,7 +369,7 @@ th {
 }
 
 td {
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .priority {
@@ -431,7 +432,7 @@ td {
 
 .toast {
   background: var(--ink);
-  border-radius: 8px;
+  border-radius: 10px;
   bottom: 24px;
   color: white;
   left: 50%;
