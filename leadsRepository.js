@@ -10,6 +10,16 @@ function normalizarTexto(valor) {
 function normalizarTelefone(valor) {
   return String(valor || "").replace(/\D/g, "");
 }
+function criarWhatsappUrl(valor){
+   const telefone = normalizarTelefone(valor);
+
+   if(!telefone){
+    return "";
+   }
+   const telefoneComCodigoPais = telefone.startsWith("55")? telefone : `55${telefone}`;
+
+   return `https://wa.me/${telefoneComCodigoPais}`;
+}
 
 function validarContato(contato) {
   const erros = [];
@@ -43,6 +53,7 @@ function mapLead(row) {
     prioridade: row.prioridade,
     empresa: row.empresa,
     contato: row.contato,
+    whatsappUrl: criarWhatsappUrl(row.contato),
     status: row.status,
     observacoes: row.observacoes || "",
     createdAt: row.created_at,

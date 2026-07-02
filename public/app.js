@@ -166,6 +166,23 @@ function textValue(value, fallback = "-") {
   return value ? String(value) : fallback;
 }
 
+function createContatoNode(lead){
+  const contato = textValue(lead.contato)
+
+  if(!lead.whatsappUrl){
+    return document.createTextNode(contato);
+  }
+
+  const link = document.createElement("a");
+  link.href = lead.whatsappUrl;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.textContent = contato;
+
+
+  return link;
+}
+
 function createLeadCard(lead) {
   const card = document.createElement("article");
   card.className = "lead-card";
@@ -212,8 +229,12 @@ function createLeadCard(lead) {
       status.className = "status-pill";
       status.textContent = value;
       description.append(status);
-    } else {
-      description.textContent = value;
+    } else if (label === "Contato"){
+      description.append(createContatoNode(lead));
+    }
+      else {
+      const contatoCell = document.createElement("td");
+      contatoCell.append(createContatoNode(lead));
     }
 
     row.append(term, description);
