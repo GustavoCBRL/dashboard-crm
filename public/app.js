@@ -231,10 +231,8 @@ function createLeadCard(lead) {
       description.append(status);
     } else if (label === "Contato"){
       description.append(createContatoNode(lead));
-    }
-      else {
-      const contatoCell = document.createElement("td");
-      contatoCell.append(createContatoNode(lead));
+    } else {
+      description.textContent = value;
     }
 
     row.append(term, description);
@@ -274,7 +272,7 @@ function renderLeads(leads) {
       cidadeCell.textContent = textValue(lead.cidade);
 
       const contatoCell = document.createElement("td");
-      contatoCell.textContent = textValue(lead.contato);
+      contatoCell.append(createContatoNode(lead));
 
       const statusCell = document.createElement("td");
       const status = document.createElement("span");
