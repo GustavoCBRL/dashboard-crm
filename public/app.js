@@ -46,7 +46,11 @@ function showToast(message) {
     toast.classList.remove("show");
   }, 3200);
 }
-
+async function deleteLead(id) {
+  return request(`/api/leads/${id}`, {
+    method: "DELETE",
+  });
+}
 async function request(path, options = {}) {
   const response = await fetch(path, {
     headers: {
@@ -103,7 +107,8 @@ function syncSelectedLeadDetails() {
   const lead = getSelectedLead();
 
   if (!lead) {
-    leadCurrentStatus.textContent = "Selecione uma lead para ver o status atual.";
+    leadCurrentStatus.textContent =
+      "Selecione uma lead para ver o status atual.";
     leadStatusInput.value = "Novo";
     leadObservacoesInput.value = "";
     return;
@@ -166,10 +171,10 @@ function textValue(value, fallback = "-") {
   return value ? String(value) : fallback;
 }
 
-function createContatoNode(lead){
-  const contato = textValue(lead.contato)
+function createContatoNode(lead) {
+  const contato = textValue(lead.contato);
 
-  if(!lead.whatsappUrl){
+  if (!lead.whatsappUrl) {
     return document.createTextNode(contato);
   }
 
@@ -178,7 +183,6 @@ function createContatoNode(lead){
   link.target = "_blank";
   link.rel = "noopener noreferrer";
   link.textContent = contato;
-
 
   return link;
 }
@@ -229,7 +233,7 @@ function createLeadCard(lead) {
       status.className = "status-pill";
       status.textContent = value;
       description.append(status);
-    } else if (label === "Contato"){
+    } else if (label === "Contato") {
       description.append(createContatoNode(lead));
     } else {
       description.textContent = value;
@@ -290,6 +294,39 @@ function renderLeads(leads) {
         contatoCell,
         statusCell,
         observacoesCell,
+      );
+
+      const actionsCell = document.createElement("td");
+      const deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "button ghost";
+      deleteButton.textContent = "Excluir";
+
+      deleteButton.addEventListener("click", async () => {
+        const confirmed = window.confirm(`Excluir a lead ${lead.empresa}?`);
+        if (!confirmed) return;
+
+        deleteButton.disabled = true;
+        try {
+          await deleteLead(lead.id);
+          await refreshAll();
+          showToast("Lead excluída");
+        } catch (error) {
+          showToast(error.message);
+        } finally {
+          deleteButton.disabled = false;
+        }
+      });
+
+      actionsCell.append(deleteButton);
+      row.append(
+        priorityCell,
+        empresaCell,
+        cidadeCell,
+        contatoCell,
+        statusCell,
+        observacoesCell,
+        actionsCell,
       );
       return row;
     }),
@@ -441,7 +478,9 @@ function bindEvents() {
 
       jsonImportForm.reset();
       await refreshAll();
-      showToast(`${data.importados} contato${data.importados === 1 ? "" : "s"} processado${data.importados === 1 ? "" : "s"}`);
+      showToast(
+        `${data.importados} contato${data.importados === 1 ? "" : "s"} processado${data.importados === 1 ? "" : "s"}`,
+      );
     } catch (error) {
       showToast(error.message);
     } finally {

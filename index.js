@@ -6,6 +6,7 @@ const {
   atualizarLead,
   listarLeads,
   obterResultados,
+  deletarLead,
 } = require("./leadsRepository");
 const { sincronizarPlanilha } = require("./googleSheets");
 
@@ -25,7 +26,9 @@ function lerContatosJson(arquivoJson) {
   const contatos = Array.isArray(dados) ? dados : dados.contatos;
 
   if (!Array.isArray(contatos)) {
-    throw new Error('O JSON precisa ser uma lista ou ter a chave "contatos" com uma lista.');
+    throw new Error(
+      'O JSON precisa ser uma lista ou ter a chave "contatos" com uma lista.',
+    );
   }
 
   return contatos;
@@ -98,7 +101,9 @@ async function main() {
     case "adicionar-contatos-json": {
       const [arquivoJson] = args;
       if (!arquivoJson) {
-        throw new Error("Informe o caminho do arquivo JSON com a lista de contatos.");
+        throw new Error(
+          "Informe o caminho do arquivo JSON com a lista de contatos.",
+        );
       }
       const contatos = lerContatosJson(arquivoJson);
       await adicionarContato(contatos);

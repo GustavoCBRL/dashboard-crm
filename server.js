@@ -10,6 +10,7 @@ const {
   obterResultados,
   sincronizarPlanilha,
 } = require("./index");
+const { deletarLead } = require("./leadsRepository");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3000);
@@ -103,7 +104,9 @@ app.post("/api/leads/import-json", async (req, res, next) => {
     const contatos = Array.isArray(req.body) ? req.body : req.body.contatos;
 
     if (!Array.isArray(contatos)) {
-      throw new Error('Envie uma lista JSON ou um objeto com a chave "contatos".');
+      throw new Error(
+        'Envie uma lista JSON ou um objeto com a chave "contatos".',
+      );
     }
 
     await adicionarContato(contatos);
@@ -146,4 +149,17 @@ app.use((error, _req, res, _next) => {
 
 app.listen(PORT, () => {
   console.log(`GUI disponível em http://localhost:${PORT}`);
+});
+
+app.delete("/api/leads/:id", async (req, res, next) => {
+  try {
+    const lead = await deletarLead(req.params.id);
+
+    res.json({
+      ok: true,
+      lead,
+    });
+  } catch (error) {
+    next(error);
+  }
 });

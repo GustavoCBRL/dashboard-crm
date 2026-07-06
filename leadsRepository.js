@@ -10,15 +10,17 @@ function normalizarTexto(valor) {
 function normalizarTelefone(valor) {
   return String(valor || "").replace(/\D/g, "");
 }
-function criarWhatsappUrl(valor){
-   const telefone = normalizarTelefone(valor);
+function criarWhatsappUrl(valor) {
+  const telefone = normalizarTelefone(valor);
 
-   if(!telefone){
+  if (!telefone) {
     return "";
-   }
-   const telefoneComCodigoPais = telefone.startsWith("55")? telefone : `55${telefone}`;
+  }
+  const telefoneComCodigoPais = telefone.startsWith("55")
+    ? telefone
+    : `55${telefone}`;
 
-   return `https://wa.me/${telefoneComCodigoPais}`;
+  return `https://wa.me/${telefoneComCodigoPais}`;
 }
 
 function validarContato(contato) {
@@ -106,6 +108,28 @@ async function adicionarContato(contatos) {
   return { inseridos, duplicados };
 }
 
+async function deletarLead(id) {
+  const leadId = Number(id);
+
+  if (!Number.isInteger(leadId) || leadId <= 0)
+    throw new Error("ID da Lead é inválido");
+
+  const result = await pool.query(
+    `
+      DELETE FROM leads
+      WHERE id = $1
+      RETURNING id, cidade, prioridade, empresa, contato, status, observacoes, created_at, updated_at
+    
+    `,
+    [leadId],
+  );
+  if (!result.rows[0]) {
+    throw new Error("Lead não encontrada");
+  }
+
+  return mapLead(result.rows[0]);
+}
+
 async function listarLeads(filtros = {}) {
   const conditions = [];
   const values = [];
@@ -133,7 +157,8 @@ async function listarLeads(filtros = {}) {
   }
 
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       id,
       cidade,
@@ -147,7 +172,9 @@ async function listarLeads(filtros = {}) {
     FROM leads
     ${where}
     ORDER BY cidade, empresa, id
-  `, values);
+  `,
+    values,
+  );
 
   return result.rows.map(mapLead);
 }
@@ -265,4 +292,5 @@ module.exports = {
   obterResultados,
   validarStatus,
   validarContato,
+  deletarLead,
 };
