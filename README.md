@@ -83,14 +83,14 @@ GOOGLE_CREDENTIALS="./credencial-google.json"
 
 Variáveis disponíveis:
 
-| Variável | Descrição | Obrigatória |
-| --- | --- | --- |
-| `DATABASE_URL` | URL de conexão PostgreSQL | Sim |
-| `PGSSLMODE` | Use `disable` para PostgreSQL local sem SSL | Não |
-| `CIDADES` | Lista de cidades/abas separadas por vírgula | Não |
-| `PORT` | Porta do servidor web | Não |
-| `SPREADSHEET_ID` | ID da planilha do Google Sheets | Só para sincronização |
-| `GOOGLE_CREDENTIALS` | Caminho do JSON da Service Account | Só para sincronização local |
+| Variável                  | Descrição                                                | Obrigatória                       |
+| ------------------------- | -------------------------------------------------------- | --------------------------------- |
+| `DATABASE_URL`            | URL de conexão PostgreSQL                                | Sim                               |
+| `PGSSLMODE`               | Use `disable` para PostgreSQL local sem SSL              | Não                               |
+| `CIDADES`                 | Lista de cidades/abas separadas por vírgula              | Não                               |
+| `PORT`                    | Porta do servidor web                                    | Não                               |
+| `SPREADSHEET_ID`          | ID da planilha do Google Sheets                          | Só para sincronização             |
+| `GOOGLE_CREDENTIALS`      | Caminho do JSON da Service Account                       | Só para sincronização local       |
 | `GOOGLE_CREDENTIALS_JSON` | Conteúdo JSON da Service Account em variável de ambiente | Só para sincronização em produção |
 
 ## Banco de dados
@@ -126,7 +126,7 @@ Com `DATABASE_URL` configurada:
 npm run db:migrate
 ```
 
-## Migrar dados do Excel atual para PostgreSQL
+## Migrar dados do Excel local para PostgreSQL
 
 Antes de gravar no banco, confira quantos leads serão importados:
 
@@ -142,13 +142,7 @@ npm run import:xlsx
 
 O script lê `leads.xlsx`, cria/aplica a migration se necessário e insere os leads no PostgreSQL. Duplicados por cidade + empresa são ignorados.
 
-No estado migrado deste projeto, a planilha local gerou 93 leads:
-
-- Aracaju: 14
-- Brasília: 44
-- Salvador: 35
-
-Duas empresas de Salvador estavam sem telefone na planilha e foram preservadas no PostgreSQL com o campo `contato` vazio.
+A planilha `leads.xlsx` é tratada como dado local/sensível e não deve ser versionada. Para demonstrações públicas, use apenas dados fictícios.
 
 ## Uso pela interface web
 
@@ -205,7 +199,7 @@ node index.js adicionar-contato '{"cidade":"Salvador","prioridade":"A","empresa"
 ### Adicionar contatos via JSON
 
 ```bash
-node index.js adicionar-contatos-json ./arquivos_json/salvador.json
+node index.js adicionar-contatos-json ./arquivos_json/exemplo.json
 ```
 
 O JSON pode ser uma lista direta:
@@ -283,9 +277,10 @@ Não versionar:
 
 - arquivos `.env`;
 - JSON de credenciais do Google;
+- IDs reais de planilhas Google no código;
 - planilhas com dados reais de leads;
+- arquivos JSON de importação com contatos reais;
 - backups locais;
 - `node_modules`.
 
-Esses itens já estão protegidos no `.gitignore`.
-
+Esses itens estão protegidos no `.gitignore`. O arquivo `arquivos_json/exemplo.json` contém apenas dados fictícios para documentação e testes manuais.

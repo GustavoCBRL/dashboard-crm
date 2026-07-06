@@ -1,0 +1,18 @@
+[
+  {
+    "cidade": "Cidade Exemplo",
+    "prioridade": "A",
+    "empresa": "Empresa Exemplo 1",
+    "contato": "11900000001",
+    "status": "Novo",
+    "observacoes": "Lead fictício usado apenas para demonstração"
+  },
+  {
+    "cidade": "Cidade Exemplo",
+    "prioridade": "B",
+    "empresa": "Empresa Exemplo 2",
+    "contato": "11900000002",
+    "status": "Contato",
+    "observacoes": "Dados sem vínculo com empresas ou contatos reais"
+  }
+]

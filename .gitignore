@@ -18,6 +18,10 @@ backups/
 *.backup
 *.bak
 
+# Arquivos de importação com dados reais de leads
+arquivos_json/*.json
+!arquivos_json/exemplo.json
+
 # Planilhas locais/importações com dados de contatos
 *.xlsx
 !template*.xlsx
