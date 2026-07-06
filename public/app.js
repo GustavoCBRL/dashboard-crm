@@ -32,6 +32,7 @@ const prioridadeInput = document.querySelector("#prioridadeInput");
 const statusInput = document.querySelector("#statusInput");
 const leadSelectInput = document.querySelector("#leadSelectInput");
 const leadStatusInput = document.querySelector("#leadStatusInput");
+const leadContatoInput = document.querySelector("#leadContatoInput");
 const leadObservacoesInput = document.querySelector("#leadObservacoesInput");
 const leadCurrentStatus = document.querySelector("#leadCurrentStatus");
 const tabButtons = document.querySelectorAll(".tab-button");
@@ -111,12 +112,14 @@ function syncSelectedLeadDetails() {
       "Selecione uma lead para ver o status atual.";
     leadStatusInput.value = "Novo";
     leadObservacoesInput.value = "";
+    leadContatoInput.value = "";
     return;
   }
 
   leadCurrentStatus.textContent = `Status atual: ${lead.status || "Sem status"} · ${lead.empresa} em ${lead.cidade}`;
   leadStatusInput.value = lead.status || "Novo";
   leadObservacoesInput.value = lead.observacoes || "";
+  leadContatoInput.value = lead.contato || "";
 }
 
 function setActiveTab(tabId) {
@@ -380,6 +383,7 @@ async function updateLeadStatus(payload) {
     body: JSON.stringify({
       status: payload.status,
       observacoes: payload.observacoes,
+      contato: payload.contato,
     }),
   });
 }
@@ -449,7 +453,7 @@ function bindEvents() {
     try {
       await updateLeadStatus(payload);
       await refreshAll();
-      showToast("Status da lead atualizado");
+      showToast("Lead atualizado");
     } catch (error) {
       showToast(error.message);
     } finally {

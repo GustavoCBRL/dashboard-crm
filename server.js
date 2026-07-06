@@ -88,6 +88,7 @@ app.patch("/api/leads/:id", async (req, res, next) => {
     const lead = await atualizarLead(req.params.id, {
       status: req.body.status,
       observacoes: req.body.observacoes,
+      contato: req.body.contato,
     });
 
     res.json({

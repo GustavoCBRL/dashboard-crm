@@ -256,7 +256,11 @@ async function atualizarLead(id, dados) {
     values.push(dados.status);
     updates.push(`status = $${values.length}`);
   }
-
+  if (dados.contato !== undefined) {
+    const telefone = normalizarTelefone(dados.contato);
+    values.push(telefone);
+    updates.push(`contato = $${values.length}`);
+  }
   if (dados.observacoes !== undefined) {
     values.push(String(dados.observacoes || ""));
     updates.push(`observacoes = $${values.length}`);
