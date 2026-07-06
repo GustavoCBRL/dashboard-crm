@@ -1,4 +1,4 @@
-# Dashboard CRM Dismobile
+# Dashboard CRM
 
 Aplicação Node.js/Express para gerenciar leads comerciais da Dismobile com dashboard web, PostgreSQL como banco principal e sincronização opcional com Google Sheets.
 
@@ -289,6 +289,3 @@ Não versionar:
 
 Esses itens já estão protegidos no `.gitignore`.
 
-## Licença
-
-Projeto privado/de uso interno da Dismobile.
