@@ -71,7 +71,7 @@ Exemplo:
 ```bash
 DATABASE_URL="postgresql://usuario:senha@host:5432/banco"
 PGSSLMODE="disable"
-CIDADES="Aracaju,Salvador,Brasília"
+CIDADES="Aracaju,Salvador,Brasília, Camaçari"
 PORT="3000"
 
 # Opcional para sincronização com Google Sheets
@@ -252,7 +252,7 @@ Ou um objeto com a chave `contatos`:
 5. Configure, se necessário:
 
 ```text
-CIDADES=Aracaju,Salvador,Brasília
+CIDADES=Aracaju,Salvador,Brasília,Camaçari
 NODE_ENV=production
 GOOGLE_CREDENTIALS_JSON={...}
 SPREADSHEET_ID=...
