@@ -47,7 +47,11 @@
               </label>
               <label class="search-field">
                 Buscar
-                <input id="searchInput" type="search" placeholder="Empresa, telefone, observação" />
+                <input
+                  id="searchInput"
+                  type="search"
+                  placeholder="Empresa, telefone, observação"
+                />
               </label>
             </div>
 
@@ -106,7 +110,12 @@
               </button>
             </div>
 
-            <div id="leadFormPanel" class="tab-panel is-active" role="tabpanel" aria-labelledby="leadFormTab">
+            <div
+              id="leadFormPanel"
+              class="tab-panel is-active"
+              role="tabpanel"
+              aria-labelledby="leadFormTab"
+            >
               <form id="leadForm">
                 <label>
                   Cidade
@@ -115,7 +124,11 @@
 
                 <label>
                   Prioridade
-                  <select name="prioridade" id="prioridadeInput" required></select>
+                  <select
+                    name="prioridade"
+                    id="prioridadeInput"
+                    required
+                  ></select>
                 </label>
 
                 <label>
@@ -144,7 +157,13 @@
               </form>
             </div>
 
-            <div id="leadStatusPanel" class="tab-panel" role="tabpanel" aria-labelledby="leadStatusTab" hidden>
+            <div
+              id="leadStatusPanel"
+              class="tab-panel"
+              role="tabpanel"
+              aria-labelledby="leadStatusTab"
+              hidden
+            >
               <form id="leadStatusForm">
                 <label>
                   Lead
@@ -153,7 +172,19 @@
                   </select>
                 </label>
 
-                <p id="leadCurrentStatus" class="helper-text">Selecione uma lead para ver o status atual.</p>
+                <p id="leadCurrentStatus" class="helper-text">
+                  Selecione uma lead para ver o status atual.
+                </p>
+
+                <label>
+                  Nome
+                  <textarea
+                    id="leadNomeInput"
+                    name="empresa"
+                    rows="1"
+                    placeholder="Mude o nome da Lead"
+                  ></textarea>
+                </label>
 
                 <label>
                   Novo status
@@ -162,12 +193,22 @@
 
                 <label>
                   Observações
-                  <textarea id="leadObservacoesInput" name="observacoes" rows="4" placeholder="Opcional: registre o próximo passo ou contexto da atualização"></textarea>
+                  <textarea
+                    id="leadObservacoesInput"
+                    name="observacoes"
+                    rows="4"
+                    placeholder="Opcional: registre o próximo passo ou contexto da atualização"
+                  ></textarea>
                 </label>
 
                 <label>
                   Contato
-                <textarea id="leadContatoInput" name="contato" rows="1" placeholder="Mude o Contato"></textarea>
+                  <textarea
+                    id="leadContatoInput"
+                    name="contato"
+                    rows="1"
+                    placeholder="Mude o Contato"
+                  ></textarea>
                 </label>
 
                 <button class="button primary wide" type="submit">
@@ -188,11 +229,20 @@
             <form id="jsonImportForm">
               <label>
                 Arquivo JSON
-                <input id="jsonFileInput" type="file" accept="application/json,.json" required />
+                <input
+                  id="jsonFileInput"
+                  type="file"
+                  accept="application/json,.json"
+                  required
+                />
               </label>
 
               <div class="json-example">
-                <code>[{ "cidade": "Salvador", "prioridade": "A", "empresa": "Empresa X", "contato": "71999999999", "status": "Novo" }]</code>
+                <code
+                  >[{ "cidade": "Salvador", "prioridade": "A", "empresa":
+                  "Empresa X", "contato": "71999999999", "status": "Novo"
+                  }]</code
+                >
               </div>
 
               <button class="button ghost wide" type="submit">

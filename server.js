@@ -89,6 +89,7 @@ app.patch("/api/leads/:id", async (req, res, next) => {
       status: req.body.status,
       observacoes: req.body.observacoes,
       contato: req.body.contato,
+      empresa: req.body.empresa,
     });
 
     res.json({

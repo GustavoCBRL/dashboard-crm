@@ -32,6 +32,7 @@ const prioridadeInput = document.querySelector("#prioridadeInput");
 const statusInput = document.querySelector("#statusInput");
 const leadSelectInput = document.querySelector("#leadSelectInput");
 const leadStatusInput = document.querySelector("#leadStatusInput");
+const leadNomeInput = document.querySelector("#leadNomeInput");
 const leadContatoInput = document.querySelector("#leadContatoInput");
 const leadObservacoesInput = document.querySelector("#leadObservacoesInput");
 const leadCurrentStatus = document.querySelector("#leadCurrentStatus");
@@ -113,6 +114,7 @@ function syncSelectedLeadDetails() {
     leadStatusInput.value = "Novo";
     leadObservacoesInput.value = "";
     leadContatoInput.value = "";
+    leadNomeInput.value = "";
     return;
   }
 
@@ -120,6 +122,7 @@ function syncSelectedLeadDetails() {
   leadStatusInput.value = lead.status || "Novo";
   leadObservacoesInput.value = lead.observacoes || "";
   leadContatoInput.value = lead.contato || "";
+  leadNomeInput.value = lead.empresa || "";
 }
 
 function setActiveTab(tabId) {
@@ -384,6 +387,7 @@ async function updateLeadStatus(payload) {
       status: payload.status,
       observacoes: payload.observacoes,
       contato: payload.contato,
+      empresa: payload.empresa,
     }),
   });
 }

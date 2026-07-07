@@ -250,7 +250,15 @@ async function atualizarLead(id, dados) {
 
   const updates = [];
   const values = [];
+  if (dados.empresa !== undefined) {
+    const empresa = String(dados.empresa || "").trim();
 
+    if (!empresa) {
+      throw new Error("Nome é obrigatório");
+    }
+    values.push(dados.empresa);
+    updates.push(`empresa = $${values.length}`);
+  }
   if (dados.status !== undefined) {
     validarStatus(dados.status);
     values.push(dados.status);
