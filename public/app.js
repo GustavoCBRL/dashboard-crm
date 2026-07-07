@@ -40,6 +40,7 @@ const tabButtons = document.querySelectorAll(".tab-button");
 const tabPanels = document.querySelectorAll(".tab-panel");
 const toast = document.querySelector("#toast");
 
+// Exibe uma notificação curta para feedback da interface.
 function showToast(message) {
   toast.textContent = message;
   toast.classList.add("show");
@@ -48,11 +49,15 @@ function showToast(message) {
     toast.classList.remove("show");
   }, 3200);
 }
+
+// Remove uma lead pelo endpoint da API.
 async function deleteLead(id) {
   return request(`/api/leads/${id}`, {
     method: "DELETE",
   });
 }
+
+// Faz requisições JSON e normaliza erros vindos do backend.
 async function request(path, options = {}) {
   const response = await fetch(path, {
     headers: {
@@ -69,6 +74,7 @@ async function request(path, options = {}) {
   return data;
 }
 
+// Cria um elemento option para os selects da tela.
 function option(value, label = value) {
   const el = document.createElement("option");
   el.value = value;
@@ -76,6 +82,7 @@ function option(value, label = value) {
   return el;
 }
 
+// Preenche um select com os valores disponíveis.
 function fillSelect(select, values, { allLabel } = {}) {
   select.replaceChildren();
   if (allLabel) {
@@ -84,6 +91,7 @@ function fillSelect(select, values, { allLabel } = {}) {
   values.forEach((value) => select.append(option(value)));
 }
 
+// Monta o seletor de leads usado no formulário de atualização.
 function fillLeadSelect(leads) {
   const currentValue = leadSelectInput.value;
   leadSelectInput.replaceChildren(option("", "Selecione uma lead"));
@@ -100,11 +108,13 @@ function fillLeadSelect(leads) {
   syncSelectedLeadDetails();
 }
 
+// Recupera a lead atualmente escolhida no select.
 function getSelectedLead() {
   const selectedId = Number(leadSelectInput.value);
   return state.leads.find((lead) => lead.id === selectedId) || null;
 }
 
+// Copia os dados da lead selecionada para o formulário lateral.
 function syncSelectedLeadDetails() {
   const lead = getSelectedLead();
 
@@ -125,6 +135,7 @@ function syncSelectedLeadDetails() {
   leadNomeInput.value = lead.empresa || "";
 }
 
+// Alterna entre as abas de cadastro e atualização.
 function setActiveTab(tabId) {
   state.activeTab = tabId;
 
@@ -141,6 +152,7 @@ function setActiveTab(tabId) {
   });
 }
 
+// Renderiza os cards de métricas do topo com dados do dashboard.
 function renderMetrics(dashboard) {
   const resultados = dashboard.resultados;
   const items = [
@@ -169,14 +181,17 @@ function renderMetrics(dashboard) {
   })}`;
 }
 
+// Traduz a prioridade para a classe visual correspondente.
 function priorityClass(prioridade) {
   return `priority priority-${String(prioridade || "").toLocaleLowerCase("pt-BR")}`;
 }
 
+// Garante um texto padrão quando o valor estiver vazio.
 function textValue(value, fallback = "-") {
   return value ? String(value) : fallback;
 }
 
+// Cria o texto ou link clicável do contato da lead.
 function createContatoNode(lead) {
   const contato = textValue(lead.contato);
 
@@ -193,6 +208,7 @@ function createContatoNode(lead) {
   return link;
 }
 
+// Monta o card mobile de uma lead com seus principais dados.
 function createLeadCard(lead) {
   const card = document.createElement("article");
   card.className = "lead-card";
@@ -253,6 +269,7 @@ function createLeadCard(lead) {
   return card;
 }
 
+// Atualiza a tabela, os cards e o seletor com a lista de leads.
 function renderLeads(leads) {
   state.leads = leads;
   fillLeadSelect(leads);
@@ -339,11 +356,13 @@ function renderLeads(leads) {
   );
 }
 
+// Busca e renderiza os indicadores do dashboard.
 async function loadDashboard() {
   const dashboard = await request("/api/dashboard");
   renderMetrics(dashboard);
 }
 
+// Busca a lista de leads aplicando os filtros atuais.
 async function loadLeads() {
   const params = new URLSearchParams();
   Object.entries(state.filters).forEach(([key, value]) => {
@@ -354,6 +373,7 @@ async function loadLeads() {
   renderLeads(data.leads);
 }
 
+// Recarrega dashboard e leads em paralelo.
 async function refreshAll() {
   refreshButton.disabled = true;
   try {
@@ -365,6 +385,7 @@ async function refreshAll() {
   }
 }
 
+// Aciona a sincronização manual e atualiza a interface.
 async function syncSheets() {
   syncButton.disabled = true;
   syncButton.textContent = "Sincronizando";
@@ -380,6 +401,7 @@ async function syncSheets() {
   }
 }
 
+// Envia a atualização dos dados editáveis de uma lead.
 async function updateLeadStatus(payload) {
   return request(`/api/leads/${payload.id}`, {
     method: "PATCH",
@@ -392,6 +414,7 @@ async function updateLeadStatus(payload) {
   });
 }
 
+// Liga eventos de filtros, botões e formulários da tela.
 function bindEvents() {
   tabButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -497,6 +520,7 @@ function bindEvents() {
   });
 }
 
+// Carrega configurações iniciais e a primeira renderização da tela.
 async function init() {
   try {
     state.config = await request("/api/config");

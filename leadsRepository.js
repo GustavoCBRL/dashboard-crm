@@ -1,15 +1,19 @@
 const pool = require("./db");
 const { PRIORIDADES, STATUS } = require("./config");
 
+// Normaliza texto para buscas e comparações sem sensibilidade a caixa.
 function normalizarTexto(valor) {
   return String(valor || "")
     .trim()
     .toLocaleLowerCase("pt-BR");
 }
 
+// Remove qualquer caractere que não seja número do telefone.
 function normalizarTelefone(valor) {
   return String(valor || "").replace(/\D/g, "");
 }
+
+// Gera o link direto do WhatsApp a partir do telefone salvo.
 function criarWhatsappUrl(valor) {
   const telefone = normalizarTelefone(valor);
 
@@ -23,6 +27,7 @@ function criarWhatsappUrl(valor) {
   return `https://wa.me/${telefoneComCodigoPais}`;
 }
 
+// Valida os campos obrigatórios e os valores aceitos no cadastro.
 function validarContato(contato) {
   const erros = [];
 
@@ -41,12 +46,14 @@ function validarContato(contato) {
   }
 }
 
+// Garante que o status informado existe na lista permitida.
 function validarStatus(status) {
   if (!STATUS.includes(status)) {
     throw new Error(`status inválido: ${status}`);
   }
 }
 
+// Converte uma linha do banco para o formato usado pela aplicação.
 function mapLead(row) {
   return {
     id: row.id,
@@ -63,6 +70,7 @@ function mapLead(row) {
   };
 }
 
+// Insere uma ou várias leads e separa as que foram ignoradas por duplicidade.
 async function adicionarContato(contatos) {
   const lista = Array.isArray(contatos) ? contatos : [contatos];
   const inseridos = [];
@@ -108,6 +116,7 @@ async function adicionarContato(contatos) {
   return { inseridos, duplicados };
 }
 
+// Remove uma lead pelo id e devolve o registro excluído.
 async function deletarLead(id) {
   const leadId = Number(id);
 
@@ -130,6 +139,7 @@ async function deletarLead(id) {
   return mapLead(result.rows[0]);
 }
 
+// Lista leads com filtros opcionais por cidade, status e busca textual.
 async function listarLeads(filtros = {}) {
   const conditions = [];
   const values = [];
@@ -179,6 +189,7 @@ async function listarLeads(filtros = {}) {
   return result.rows.map(mapLead);
 }
 
+// Consolida os totais por status e por cidade para o dashboard.
 async function obterResultados() {
   const result = await pool.query(`
     SELECT cidade, status, COUNT(*)::int AS total
@@ -241,6 +252,7 @@ async function obterResultados() {
   return resultados;
 }
 
+// Atualiza apenas os campos enviados para uma lead existente.
 async function atualizarLead(id, dados) {
   const leadId = Number(id);
 

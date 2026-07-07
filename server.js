@@ -18,6 +18,7 @@ const PORT = Number(process.env.PORT || 3000);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Entrega listas fixas usadas para montar filtros e formulários.
 app.get("/api/config", (_req, res) => {
   res.json({
     cidades: CONFIG.cidades,
@@ -26,6 +27,7 @@ app.get("/api/config", (_req, res) => {
   });
 });
 
+// Retorna os totais consolidados para os cards do dashboard.
 app.get("/api/dashboard", async (_req, res, next) => {
   try {
     const [resultados, leads] = await Promise.all([
@@ -43,6 +45,7 @@ app.get("/api/dashboard", async (_req, res, next) => {
   }
 });
 
+// Lista leads com os filtros enviados pela interface.
 app.get("/api/leads", async (req, res, next) => {
   try {
     const leads = await listarLeads({
@@ -57,6 +60,7 @@ app.get("/api/leads", async (req, res, next) => {
   }
 });
 
+// Cria uma nova lead a partir dos dados enviados pelo formulário.
 app.post("/api/leads", async (req, res, next) => {
   try {
     await adicionarContato({
@@ -83,6 +87,7 @@ app.post("/api/leads", async (req, res, next) => {
   }
 });
 
+// Atualiza apenas os campos editados de uma lead existente.
 app.patch("/api/leads/:id", async (req, res, next) => {
   try {
     const lead = await atualizarLead(req.params.id, {
@@ -101,6 +106,7 @@ app.patch("/api/leads/:id", async (req, res, next) => {
   }
 });
 
+// Importa uma lista JSON de contatos em lote.
 app.post("/api/leads/import-json", async (req, res, next) => {
   try {
     const contatos = Array.isArray(req.body) ? req.body : req.body.contatos;
@@ -129,6 +135,7 @@ app.post("/api/leads/import-json", async (req, res, next) => {
   }
 });
 
+// Dispara a sincronização manual com a planilha externa.
 app.post("/api/sync", async (_req, res, next) => {
   try {
     await sincronizarPlanilha();
@@ -141,6 +148,7 @@ app.post("/api/sync", async (_req, res, next) => {
   }
 });
 
+// Centraliza a resposta de erro da API em um único formato.
 app.use((error, _req, res, _next) => {
   console.error(error);
   res.status(400).json({
@@ -149,10 +157,12 @@ app.use((error, _req, res, _next) => {
   });
 });
 
+// Sobe o servidor HTTP da aplicação.
 app.listen(PORT, () => {
   console.log(`GUI disponível em http://localhost:${PORT}`);
 });
 
+// Exclui uma lead pelo id informado na rota.
 app.delete("/api/leads/:id", async (req, res, next) => {
   try {
     const lead = await deletarLead(req.params.id);
