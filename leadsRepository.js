@@ -70,6 +70,31 @@ function mapLead(row) {
   };
 }
 
+const CAMPOS_RESULTADO = [
+  "contatos",
+  "reverContatos",
+  "catalogos",
+  "followUps",
+  "fechados",
+  "perdidos",
+];
+
+const STATUS_RESULTADOS = {
+  Contato: ["contatos"],
+  "Rever Contato": ["contatos", "reverContatos"],
+  Catálogo: ["contatos", "reverContatos", "catalogos"],
+  "Follow Up": ["contatos", "reverContatos", "catalogos", "followUps"],
+  Fechado: ["fechados"],
+  Perdido: ["perdidos"],
+};
+
+function criarTotaisResultado() {
+  return CAMPOS_RESULTADO.reduce((acc, campo) => {
+    acc[campo] = 0;
+    return acc;
+  }, {});
+}
+
 // Insere uma ou várias leads e separa as que foram ignoradas por duplicidade.
 async function adicionarContato(contatos) {
   const lista = Array.isArray(contatos) ? contatos : [contatos];
@@ -199,53 +224,21 @@ async function obterResultados() {
   `);
 
   const resultados = {
-    contatos: 0,
-    catalogos: 0,
-    followUps: 0,
-    fechados: 0,
-    perdidos: 0,
+    ...criarTotaisResultado(),
     porCidade: {},
   };
 
   for (const row of result.rows) {
     if (!resultados.porCidade[row.cidade]) {
-      resultados.porCidade[row.cidade] = {
-        contatos: 0,
-        catalogos: 0,
-        followUps: 0,
-        fechados: 0,
-        perdidos: 0,
-      };
+      resultados.porCidade[row.cidade] = criarTotaisResultado();
     }
 
     const parcial = resultados.porCidade[row.cidade];
     const total = Number(row.total || 0);
 
-    if (row.status === "Contato") {
-      resultados.contatos += total;
-      parcial.contatos += total;
-    }
-    if (row.status === "Catálogo") {
-      resultados.catalogos += total;
-      resultados.contatos += total;
-      parcial.catalogos += total;
-      parcial.contatos += total;
-    }
-    if (row.status === "Follow Up") {
-      resultados.followUps += total;
-      resultados.catalogos += total;
-      resultados.contatos += total;
-      parcial.followUps += total;
-      parcial.catalogos += total;
-      parcial.contatos += total;
-    }
-    if (row.status === "Fechado") {
-      resultados.fechados += total;
-      parcial.fechados += total;
-    }
-    if (row.status === "Perdido") {
-      resultados.perdidos += total;
-      parcial.perdidos += total;
+    for (const campo of STATUS_RESULTADOS[row.status] || []) {
+      resultados[campo] += total;
+      parcial[campo] += total;
     }
   }
 

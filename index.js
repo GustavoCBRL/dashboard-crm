@@ -40,6 +40,7 @@ async function consultarPlanilhaResultados() {
   console.log(`
 Resultados:
   - Contatos: ${resultados.contatos};
+  - Rever Contato: ${resultados.reverContatos};
   - Catálogos Enviados: ${resultados.catalogos};
   - Follow Ups Realizados: ${resultados.followUps};
   - Negócios Fechados: ${resultados.fechados};
@@ -49,7 +50,7 @@ Resultados:
   console.log("Resultados por cidade:");
   for (const [cidade, parcial] of Object.entries(resultados.porCidade)) {
     console.log(
-      `  - ${cidade}: ${parcial.contatos} contatos, ${parcial.catalogos} catálogos, ${parcial.followUps} follow ups, ${parcial.fechados} fechados, ${parcial.perdidos} perdidos`,
+      `  - ${cidade}: ${parcial.contatos} contatos, ${parcial.reverContatos} rever contato, ${parcial.catalogos} catálogos, ${parcial.followUps} follow ups, ${parcial.fechados} fechados, ${parcial.perdidos} perdidos`,
     );
   }
 }

@@ -4,7 +4,7 @@ Aplicação Node.js/Express para gerenciar leads comerciais da Dismobile com das
 
 ## Funcionalidades
 
-- Dashboard web com métricas de leads, contatos, catálogos enviados, follow ups, fechados e perdidos.
+- Dashboard web com métricas de leads, contatos, revisão de contato, catálogos enviados, follow ups, fechados e perdidos.
 - Cadastro manual de leads pela interface web.
 - Importação de contatos em lote via arquivo JSON.
 - Filtros por cidade, status e busca textual.
@@ -238,6 +238,7 @@ Ou um objeto com a chave `contatos`:
 
 - `Novo`
 - `Contato`
+- `Rever Contato`
 - `Catálogo`
 - `Follow Up`
 - `Fechado`

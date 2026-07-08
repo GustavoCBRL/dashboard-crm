@@ -3,6 +3,7 @@ require("dotenv").config({ quiet: true });
 const STATUS = [
   "Novo",
   "Contato",
+  "Rever Contato",
   "Catálogo",
   "Follow Up",
   "Fechado",
