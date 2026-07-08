@@ -158,7 +158,7 @@ function renderMetrics(dashboard) {
   const items = [
     ["Leads", dashboard.totalLeads, "teal"],
     ["Contatos", resultados.contatos, "teal"],
-    ["Rever contato", resultados.reverContatos, "gold"],
+    ["Números a revisar", resultados.reverContatos, "gold"],
     ["Catálogos", resultados.catalogos, "gold"],
     ["Follow ups", resultados.followUps, "gold"],
     ["Fechados", resultados.fechados, "green"],

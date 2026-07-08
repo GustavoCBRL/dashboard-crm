@@ -81,9 +81,9 @@ const CAMPOS_RESULTADO = [
 
 const STATUS_RESULTADOS = {
   Contato: ["contatos"],
-  "Rever Contato": ["contatos", "reverContatos"],
-  Catálogo: ["contatos", "reverContatos", "catalogos"],
-  "Follow Up": ["contatos", "reverContatos", "catalogos", "followUps"],
+  "Rever Contato": ["reverContatos"],
+  Catálogo: ["contatos", "catalogos"],
+  "Follow Up": ["contatos", "catalogos", "followUps"],
   Fechado: ["fechados"],
   Perdido: ["perdidos"],
 };
