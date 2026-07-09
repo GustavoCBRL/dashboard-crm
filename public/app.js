@@ -1,3 +1,4 @@
+// Estado compartilhado da interface e dos filtros ativos.
 const state = {
   config: {
     cidades: [],
@@ -13,6 +14,7 @@ const state = {
   },
 };
 
+// Referências fixas dos elementos manipulados pela tela.
 const metricsEl = document.querySelector("#metrics");
 const leadsBody = document.querySelector("#leadsBody");
 const leadsCards = document.querySelector("#leadsCards");
@@ -243,7 +245,8 @@ function createLeadCard(lead) {
     ["Status", textValue(lead.status, "Sem status")],
     ["Observações", textValue(lead.observacoes)],
   ];
-
+  const actions = document.createElement("div");
+  actions.className = "lead-card-actions";
   fields.forEach(([label, value]) => {
     const row = document.createElement("div");
     const term = document.createElement("dt");
@@ -266,7 +269,30 @@ function createLeadCard(lead) {
     meta.append(row);
   });
 
-  card.append(header, meta);
+  const deleteButton = document.createElement("button");
+  deleteButton.type = "button";
+  deleteButton.className = "button ghost wide lead-action-button";
+  deleteButton.textContent = "Excluir";
+
+  deleteButton.addEventListener("click", async () => {
+    const confirmed = window.confirm(`Excluir a lead ${lead.empresa}?`);
+    if (!confirmed) return;
+
+    deleteButton.disabled = true;
+    try {
+      await deleteLead(lead.id);
+      await refreshAll();
+      showToast("Lead excluída");
+    } catch (error) {
+      showToast(error.message);
+    } finally {
+      deleteButton.disabled = false;
+    }
+  });
+
+  actions.append(deleteButton);
+
+  card.append(header, meta, actions);
   return card;
 }
 
@@ -435,6 +461,7 @@ function bindEvents() {
 
   searchInput.addEventListener("input", () => {
     state.filters.q = searchInput.value.trim();
+    // Debounce curto para evitar uma busca a cada tecla.
     window.clearTimeout(searchInput.timeout);
     searchInput.timeout = window.setTimeout(() => {
       loadLeads().catch((error) => showToast(error.message));
@@ -501,6 +528,7 @@ function bindEvents() {
 
     submitButton.disabled = true;
     try {
+      // Lê o JSON localmente antes de enviar ao backend.
       const content = await file.text();
       const payload = JSON.parse(content);
       const data = await request("/api/leads/import-json", {
