@@ -16,7 +16,7 @@ const CONFIG = {
   credentialsFile: process.env.GOOGLE_CREDENTIALS || "",
   leadsFile:
     process.env.LEADS_FILE || require("path").resolve(__dirname, "leads.xlsx"),
-  cidades: (process.env.CIDADES || "Aracaju,Salvador,Brasília,Camaçari,Recife,Fortaleza")
+  cidades: (process.env.CIDADES || "Aracaju,Salvador,Brasília,Camaçari,Recife,Fortaleza,João Pessoa")
     .split(",")
     .map((cidade) => cidade.trim())
     .filter(Boolean),

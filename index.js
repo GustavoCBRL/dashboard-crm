@@ -73,7 +73,7 @@ Configuração por ambiente:
   SPREADSHEET_ID=...
   GOOGLE_CREDENTIALS=./arquivo-google.json
   GOOGLE_CREDENTIALS_JSON='{"type":"service_account",...}'
-  CIDADES=Aracaju,Salvador,Brasília,Camaçari,Recife,Fortaleza
+  CIDADES=Aracaju,Salvador,Brasília,Camaçari,Recife,Fortaleza,João Pessoa
 `);
 }
 
